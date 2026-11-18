@@ -264,6 +264,7 @@
         ]
     };
 
+    // HARDCODED REELS DATA WITH STABLE IMAGES
     const reelsData = {
         revamped: [
             { src: 'https://images.unsplash.com/photo-1540420773420-3366772f4999?w=800', caption: '<b>hktvmall</b> 🍳 15-Minute Creamy Mushroom Pasta Recipe using fresh ingredients delivered in 3 hours across Hong Kong! #15MinMeals #HKTVmall<br><br>15分鐘忌廉蘑菇意粉食譜，全港3小時新鮮直送食材！', strategy: '<b>Reel Strategy:</b> Educational recipe short driving high saves and recipe checklist clicks.' },
@@ -307,12 +308,14 @@
         } else if (currentTab === 'reels') {
             grid.style.gridTemplateColumns = 'repeat(2, 1fr)';
             const activeReels = isRevamped ? reelsData.revamped : reelsData.audit;
+            
+            // DIRECT HARDCODED HTML RENDERING FOR REELS TO ELIMINATE ANY ARRAY BUGS
             activeReels.forEach((reel) => {
                 const item = document.createElement('div');
                 item.className = 'grid-item';
                 item.style.aspectRatio = '9/16';
                 item.innerHTML = `
-                    <img src="${reel.src}" alt="Reel">
+                    <img src="${reel.src}" alt="Reel" style="width:100%; height:100%; object-fit:cover; display:block;">
                     <div class="badge">🎬 Reel</div>
                 `;
                 item.onclick = () => openReelModal(reel);
