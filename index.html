@@ -264,11 +264,10 @@
         ]
     };
 
-    // HARDCODED REELS DATA WITH STABLE IMAGES
     const reelsData = {
         revamped: [
-            { src: 'https://images.unsplash.com/photo-1540420773420-3366772f4999?w=800', caption: '<b>hktvmall</b> 🍳 15-Minute Creamy Mushroom Pasta Recipe using fresh ingredients delivered in 3 hours across Hong Kong! #15MinMeals #HKTVmall<br><br>15分鐘忌廉蘑菇意粉食譜，全港3小時新鮮直送食材！', strategy: '<b>Reel Strategy:</b> Educational recipe short driving high saves and recipe checklist clicks.' },
-            { src: 'https://images.unsplash.com/photo-1526947425960-945c6e72858f?w=800', caption: '<b>hktvmall</b> 📦 Unboxing our weekly HKTVmall grocery haul with @foodie_hk! Fresh organic finds delivered to your doorstep.<br><br>與 @foodie_hk 一同開箱本週HKTVmall新鮮有機好物！', strategy: '<b>Reel Strategy:</b> User-Generated Content (UGC) unboxing spotlight to build organic community trust.' },
+            { src: 'https://images.unsplash.com/photo-1556910103-1c02745aae4d?w=800', caption: '<b>hktvmall</b> 🍳 15-Minute Creamy Mushroom Pasta Recipe using fresh ingredients delivered in 3 hours across Hong Kong! #15MinMeals #HKTVmall<br><br>15分鐘忌廉蘑菇意粉食譜，全港3小時新鮮直送食材！', strategy: '<b>Reel Strategy:</b> Educational recipe short driving high saves and recipe checklist clicks.' },
+            { src: 'https://images.unsplash.com/photo-1513635269975-59663e0ac1ad?w=800', caption: '<b>hktvmall</b> 📦 Unboxing our weekly HKTVmall grocery haul with @foodie_hk! Fresh organic finds delivered to your doorstep.<br><br>與 @foodie_hk 一同開箱本週HKTVmall新鮮有機好物！', strategy: '<b>Reel Strategy:</b> User-Generated Content (UGC) unboxing spotlight to build organic community trust.' },
             { src: 'https://images.unsplash.com/photo-1578916171728-46686eac8d58?w=800', caption: '<b>hktvmall</b> ⚡ Behind the scenes at our automated warehouse picking your daily essentials at lightning speed!<br><br>快閃幕後：全自動化物流倉極速為您配貨！', strategy: '<b>Reel Strategy:</b> Brand transparency and operational insight video to strengthen consumer confidence.' },
             { src: 'https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?w=800', caption: '<b>hktvmall</b> ✨ K-Beauty Friday Glow Up routine featuring top serums available on next-day morning delivery.<br><br>韓系週末護膚程序，次日早晨準時送到。', strategy: '<b>Reel Strategy:</b> Lifestyle curation and product showcase in native vertical video format.' }
         ],
@@ -308,8 +307,6 @@
         } else if (currentTab === 'reels') {
             grid.style.gridTemplateColumns = 'repeat(2, 1fr)';
             const activeReels = isRevamped ? reelsData.revamped : reelsData.audit;
-            
-            // DIRECT HARDCODED HTML RENDERING FOR REELS TO ELIMINATE ANY ARRAY BUGS
             activeReels.forEach((reel) => {
                 const item = document.createElement('div');
                 item.className = 'grid-item';
