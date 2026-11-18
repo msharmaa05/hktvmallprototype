@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HKTVmall Instagram Prototype</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+        body { background: #fafafa; display: flex; justify-content: center; align-items: center; min-height: 100vh; color: #262626; }
+        
+        .phone-container {
+            width: 390px;
+            height: 844px;
+            background: #fff;
+            border-radius: 40px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            border: 10px solid #111;
+        }
+
+        .status-bar { height: 44px; display: flex; justify-content: space-between; align-items: center; padding: 0 20px; font-weight: 600; font-size: 14px; background: #fff; z-index: 10; }
+        .app-header { display: flex; justify-content: space-between; align-items: center; padding: 10px 16px; border-bottom: 1px solid #dbdbdb; background: #fff; z-index: 10; }
+        .app-header h1 { font-size: 18px; font-weight: 700; color: #00b140; }
+        .header-icons { display: flex; gap: 16px; font-size: 20px; }
+
+        .mode-toggle { background: #00b140; color: white; display: flex; justify-content: center; padding: 8px; font-size: 13px; font-weight: 600; gap: 15px; z-index: 10; cursor: pointer; }
+        .mode-toggle span { opacity: 0.7; transition: 0.2s; }
+        .mode-toggle span.active { opacity: 1; text-decoration: underline; }
+
+        .content-scroll { flex: 1; overflow-y: auto; background: #fff; padding-bottom: 60px; }
+
+        .profile-section { padding: 16px; display: flex; align-items: center; justify-content: space-between; }
+        .profile-pic { width: 77px; height: 77px; border-radius: 50%; background: linear-gradient(45deg, #00b140, #ff6f00); padding: 2px; cursor: pointer; }
+        .profile-pic img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; }
+        .profile-stats { display: flex; gap: 20px; text-align: center; font-size: 14px; }
+        .profile-stats div span { display: block; font-weight: 700; font-size: 16px; color: #00b140; }
+
+        .profile-bio { padding: 0 16px 12px; font-size: 13px; line-height: 1.4; }
+        .profile-bio b { color: #00b140; }
+
+        .profile-actions { padding: 0 16px 12px; display: flex; gap: 8px; }
+        .profile-actions button { flex: 1; background: #efefef; border: none; padding: 7px; border-radius: 6px; font-weight: 600; font-size: 13px; cursor: pointer; }
+        .profile-actions button.primary { background: #00b140; color: white; }
+
+        .highlights { display: flex; gap: 12px; padding: 0 16px 12px; overflow-x: auto; }
+        .highlight-item { display: flex; flex-direction: column; align-items: center; font-size: 11px; gap: 4px; cursor: pointer; flex-shrink: 0; }
+        .highlight-circle { width: 60px; height: 60px; border-radius: 50%; border: 2px solid #00b140; padding: 2px; display: flex; align-items: center; justify-content: center; background: #fdfdfd; overflow: hidden; }
+        .highlight-circle img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
+
+        .profile-tabs { display: flex; border-top: 1px solid #dbdbdb; border-bottom: 1px solid #dbdbdb; }
+        .tab { flex: 1; text-align: center; padding: 12px; font-size: 18px; cursor: pointer; border-bottom: 2px solid transparent; color: #888; }
+        .tab.active { border-bottom-color: #00b140; color: #00b140; }
+
+        .grid-feed { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2px; }
+        .grid-item { aspect-ratio: 1; background: #eee; position: relative; cursor: pointer; overflow: hidden; }
+        .grid-item img { width: 100%; height: 100%; object-fit: cover; display: block; }
+        .grid-item .badge { position: absolute; bottom: 6px; left: 6px; color: white; font-size: 11px; background: rgba(0,177,64,0.9); padding: 2px 6px; border-radius: 4px; font-weight: 600; pointer-events: none; }
+
+        .story-modal { position: absolute; inset: 0; background: rgba(0,0,0,0.95); color: white; z-index: 100; display: none; flex-direction: column; padding: 20px; justify-content: space-between; }
+        .story-bar { display: flex; gap: 4px; height: 3px; background: rgba(255,255,255,0.3); margin-bottom: 15px; }
+        .story-bar div { flex: 1; background: #00b140; height: 100%; }
+        .flash-sale-card { background: linear-gradient(135deg, #00b140, #ff6f00); padding: 24px; border-radius: 16px; text-align: center; margin-top: auto; margin-bottom: auto; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        .close-story { align-self: flex-end; font-size: 24px; cursor: pointer; }
+
+        .chat-modal { position: absolute; inset: 0; background: white; z-index: 100; display: none; flex-direction: column; }
+        .chat-header { background: #00b140; color: white; padding: 16px; display: flex; align-items: center; justify-content: space-between; font-weight: bold; }
+        .chat-body { flex: 1; padding: 16px; overflow-y: auto; background: #f4f4f4; display: flex; flex-direction: column; gap: 10px; }
+        .chat-bubble { background: white; padding: 12px; border-radius: 12px; max-width: 80%; font-size: 13px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+        .chat-options { display: flex; flex-direction: column; gap: 8px; margin-top: 10px; }
+        .chat-option-btn { background: #e8f5e9; border: 1px solid #00b140; color: #00b140; padding: 10px; border-radius: 8px; font-weight: 600; text-align: left; cursor: pointer; font-size: 12px; }
+        .chat-option-btn:hover { background: #00b140; color: white; }
+
+        .post-modal { position: absolute; inset: 0; background: white; z-index: 100; display: none; flex-direction: column; overflow-y: auto; }
+        .post-header { display: flex; align-items: center; padding: 12px; border-bottom: 1px solid #dbdbdb; gap: 10px; }
+        .post-header img { width: 32px; height: 32px; border-radius: 50%; object-fit: cover; }
+        .post-content-body { width: 100%; aspect-ratio: 4/5; background: #000; position: relative; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+        .post-content-body img { width: 100%; height: 100%; object-fit: cover; }
+        
+        .carousel-btn { position: absolute; top: 50%; transform: translateY(-50%); background: rgba(0,177,64,0.8); color: white; border: none; width: 30px; height: 30px; border-radius: 50%; cursor: pointer; font-weight: bold; display: flex; align-items: center; justify-content: center; z-index: 10; }
+        .carousel-prev { left: 10px; }
+        .carousel-next { right: 10px; }
+        .carousel-dots { position: absolute; bottom: 12px; left: 50%; transform: translateX(-50%); display: flex; gap: 5px; z-index: 10; }
+        .dot { width: 6px; height: 6px; border-radius: 50%; background: rgba(255,255,255,0.5); }
+        .dot.active { background: #00b140; }
+
+        .post-actions-bar { padding: 10px 12px; display: flex; justify-content: space-between; font-size: 22px; color: #00b140; }
+        .post-caption { padding: 0 12px 12px; font-size: 13px; line-height: 1.4; }
+        .strategy-note { background: #e8f5e9; border-left: 4px solid #00b140; padding: 10px; margin: 12px; font-size: 12px; color: #2e7d32; border-radius: 4px; }
+
+        .bottom-nav { position: absolute; bottom: 0; left: 0; right: 0; height: 50px; background: white; border-top: 1px solid #dbdbdb; display: flex; justify-content: space-around; align-items: center; font-size: 20px; z-index: 10; color: #00b140; }
+    </style>
+</head>
+<body>
+
+<div class="phone-container">
+    <div class="status-bar">
+        <span>9:41</span>
+        <span>􀰑 􀛨 􀆨</span>
+    </div>
+
+    <div class="mode-toggle" onclick="toggleMode()">
+        Mode: <span id="modeText" class="active">Revamped Strategy (After)</span> 🔄 (Click to Switch)
+    </div>
+
+    <div class="app-header">
+        <h1>hktvmall</h1>
+        <div class="header-icons">➕ 🤍 💬</div>
+    </div>
+
+    <div class="content-scroll" id="mainScroll">
+        <div class="profile-section">
+            <div class="profile-pic" onclick="openStory('flash')">
+                <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150" alt="Logo">
+            </div>
+            <div class="profile-stats">
+                <div><span>1,420</span>Posts</div>
+                <div><span>285K</span>Followers</div>
+                <div><span>180</span>Following</div>
+            </div>
+        </div>
+
+        <div class="profile-bio">
+            <b>HKTVmall | 香港網上購物</b><br>
+            <span id="bioText">✨ Your Lifestyle & Daily Essentials Hub | 生活百貨一站式<br>📍 300+ O2O Pickup Points across HK | 全港300+自取點<br>📦 Next-Day Doorstep Delivery | 次日送貨上門</span><br>
+            🔗 <span style="color: #00b140;">linktr.ee/hktvmall_revamped</span>
+        </div>
+
+        <div class="profile-actions">
+            <button class="primary">Following ∨</button>
+            <button onclick="openChatModal()">Message</button>
+            <button>Email</button>
+        </div>
+
+        <div class="highlights">
+            <div class="highlight-item" onclick="openStory('flash')">
+                <div class="highlight-circle"><img src="https://images.unsplash.com/photo-1607083206869-4c7672e72a8a?w=100"></div>
+                <span>⚡ Flash Deals</span>
+            </div>
+            <div class="highlight-item" onclick="openStory('locations')">
+                <div class="highlight-circle"><img src="https://images.unsplash.com/photo-1513635269975-59663e0ac1ad?w=100"></div>
+                <span>📍 O2O Hubs</span>
+            </div>
+            <div class="highlight-item" onclick="openStory('haul')">
+                <div class="highlight-circle"><img src="https://images.unsplash.com/photo-1542838132-92c53300491e?w=100"></div>
+                <span>🛍️ Hauls</span>
+            </div>
+            <div class="highlight-item" onclick="openStory('bts')">
+                <div class="highlight-circle"><img src="https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?w=100"></div>
+                <span>📦 Logistics</span>
+            </div>
+        </div>
+
+        <div class="profile-tabs">
+            <div class="tab active" id="tabGrid" onclick="switchTab('grid')">🧮</div>
+            <div class="tab" id="tabReels" onclick="switchTab('reels')">🎬</div>
+            <div class="tab" id="tabTagged" onclick="switchTab('tagged')">🏷️</div>
+        </div>
+
+        <div class="grid-feed" id="feedGrid"></div>
+    </div>
+
+    <div class="story-modal" id="storyModal">
+        <div>
+            <div class="story-bar"><div></div><div></div><div></div></div>
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <span id="storyTitle" style="font-weight: bold; font-size: 14px;">@hktvmall • Flash Sale Today</span>
+                <span class="close-story" onclick="closeStory()">×</span>
+            </div>
+        </div>
+        <div class="flash-sale-card" id="storyContentCard">
+            <h2 style="font-size: 22px; margin-bottom: 10px;">⚡ TODAY'S FLASH DEALS / 今日限時狂搶</h2>
+            <p style="font-size: 14px; margin-bottom: 15px;">Up to 70% OFF on Japanese Fresh Produce & Household Essentials!<br>日本直送新鮮水果及家居百貨激減高達7折！</p>
+            <div style="background: white; color: #00b140; padding: 12px; border-radius: 8px; font-weight: bold;">
+                Use Promo Code: HKTV70 (Valid till midnight)
+            </div>
+        </div>
+        <div style="text-align: center; font-size: 12px; opacity: 0.7;">Tap anywhere to exit / 點擊關閉</div>
+    </div>
+
+    <div class="chat-modal" id="chatModal">
+        <div class="chat-header">
+            <span>HKTVmall Customer Support / 客戶服務</span>
+            <span style="cursor:pointer;" onclick="closeChatModal()">✕</span>
+        </div>
+        <div class="chat-body">
+            <div class="chat-bubble">
+                👋 Hello! Welcome to HKTVmall Live Support. How can we assist your shopping experience today?<br>
+                您好！歡迎使用HKTVmall線上客服。今天有甚麼可以幫到您？
+            </div>
+            <div class="chat-options">
+                <button class="chat-option-btn" onclick="selectChatOption('📦 Where is my order? / 查詢訂單送貨進度')">📦 Where is my order? / 查詢訂單送貨進度</button>
+                <button class="chat-option-btn" onclick="selectChatOption('📍 Find nearest O2O pickup store / 尋找最近自取點')">📍 Find nearest O2O pickup store / 尋找最近自取點</button>
+                <button class="chat-option-btn" onclick="selectChatOption('⚡ Check today flash deals / 查詢今日限時優惠')">⚡ Check today flash deals / 查詢今日限時優惠</button>
+                <button class="chat-option-btn" onclick="selectChatOption('👩‍💼 Talk to human agent / 轉接專人客服')">👩‍💼 Talk to human agent / 轉接專人客服</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="post-modal" id="postModal">
+        <div class="post-header">
+            <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150" alt="Avatar">
+            <span style="font-weight: 600; font-size: 14px; color: #00b140;">hktvmall</span>
+            <span style="margin-left: auto; cursor: pointer; font-weight: bold;" onclick="closePost()">✕ Close</span>
+        </div>
+        <div class="post-content-body" id="modalContentContainer"></div>
+        <div class="post-actions-bar">
+            <span>💚 💬 ✈️</span>
+            <span>🔖</span>
+        </div>
+        <div class="post-caption" id="modalCaption">Loading caption...</div>
+        <div class="strategy-note" id="modalStrategy">Strategy note...</div>
+    </div>
+
+    <div class="bottom-nav">
+        <span>🏠</span>
+        <span>🔍</span>
+        <span>➕</span>
+        <span>🎞️</span>
+        <span>👤</span>
+    </div>
+</div>
+
+<script>
+    let isRevamped = true;
+    let currentTab = 'grid';
+    let currentSlide = 0;
+    let activeCarouselImages = [];
+
+    const feedData = {
+        revamped: [
+            { 
+                isCarousel: true,
+                images: [
+                    'https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?w=800', 
+                    'https://images.unsplash.com/photo-1578916171728-46686eac8d58?w=800', 
+                    'https://images.unsplash.com/photo-1556910103-1c02745aae4d?w=800'
+                ],
+                badge: '📑 Carousel',
+                caption: '<b>hktvmall</b> 📦 Behind the Scenes: How your daily essentials get packaged safely and swiftly at our automated HKTVmall fulfillment center! Swipe left to see our eco-friendly packaging lines.<br><br>幕後花絮：了解HKTVmall自動化物流中心如何為您極速安心打包日常所需！向左滑動查看環保包裝流程。<br><br>💬 <i>User_Ken:</i> Always impressed by delivery speed!<br>💬 <i>HKTVmall:</i> Thanks Ken! Delivering happiness daily ✨ 多謝支持！', 
+                strategy: '<b>Audit Solution:</b> Builds operational transparency and trust through behind-the-scenes bilingual storytelling.' 
+            },
+            { type: 'image', src: 'https://images.unsplash.com/photo-1540420773420-3366772f4999?w=800', badge: '📸', caption: '<b>hktvmall</b> 🥗 Busy weeknight? Whip up this 15-min Teriyaki Salmon Bowl using fresh ingredients delivered straight to your door at 6 PM!<br><br>忙碌的工作天晚上？只需15分鐘即可炮製日式照燒三文魚飯，所有新鮮食材晚上6點準時送達！<br><br>🛒 Tap link in bio for grocery list / 點擊主頁連結查看食譜清單。', strategy: '<b>Audit Solution:</b> Directly tackles the lack of lifestyle and educational content by introducing quick recipe guides.' },
+            { type: 'image', src: 'https://images.unsplash.com/photo-1513635269975-59663e0ac1ad?w=800', badge: '📍 O2O', caption: '<b>hktvmall</b> 📍 Over 300 O2O Pickup Points across Hong Kong! Pick up your online orders on your way home from work conveniently.<br><br>全港超過300個O2O自取點！放工順路即可輕鬆領取網上訂單，靈活又方便。<br><br>✨ Find your nearest store in bio / 尋找最近分店請看主頁。', strategy: '<b>Audit Solution:</b> Highlights physical accessibility and local Hong Kong convenience.' },
+            { type: 'image', src: 'https://images.unsplash.com/photo-1526947425960-945c6e72858f?w=800', badge: '🛍️ UGC', caption: '<b>hktvmall</b> 🥳 Amazing unboxing by @foodie_hk! Share your weekly grocery haul using #MyHKTVHaul to win $100 mall credits every Sunday!<br><br>多謝 @foodie_hk 的精彩開箱分享！逢星期日分享您的 #MyHKTVHaul 購物戰利品即贏 $100 現金券！', strategy: '<b>Audit Solution:</b> Resolves limited UGC by incentivizing customer-led sharing and community interaction.' },
+            { type: 'image', src: 'https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?w=800', badge: '📸', caption: '<b>hktvmall</b> ✨ K-Beauty Weekend Glow Up! Top 5 hydrating serums trending in Hong Kong, available with next-day morning delivery.<br><br>韓系護膚週末發光提案！全城熱搶Top 5保濕精華，次日早晨即送到府上。', strategy: '<b>Audit Solution:</b> Balances promotional flyers with curated lifestyle curation.' },
+            { type: 'image', src: 'https://images.unsplash.com/photo-1610832958506-aa56368176cf?w=800', badge: '🌿 Fresh', caption: '<b>hktvmall</b> 🌿 Local organic greens harvested and delivered within 24 hours. Eat clean, live green!<br><br>本地有機蔬菜24小時內新鮮直送。食得健康，活得環保！', strategy: '<b>Audit Solution:</b> Strengthens visual storytelling on Instagram feed.' },
+            { type: 'image', src: 'https://images.unsplash.com/photo-1607083206869-4c7672e72a8a?w=800', badge: '⚡ Sale', caption: '<b>hktvmall</b> ⚡ 48-Hour Super Markdown on household essentials! Use code HKTV20 for extra savings.<br><br>家居日用品48小時超級激減！結帳時輸入優惠碼 HKTV20 即享額外折扣。', strategy: '<b>Audit Solution:</b> Keeps core promotional deals structured (capped at 20% of total feed mix).' },
+            { type: 'image', src: 'https://images.unsplash.com/photo-1576092768241-dec231879fc3?w=800', badge: '🍵', caption: '<b>hktvmall</b> 🍵 Uji Matcha latte kits are back in stock! Tag a matcha lover who needs this morning pick-me-up.<br><br>宇治抹茶拿鐵套裝返貨！標記身邊的抹茶控朋友一齊歎返杯晨早提神飲品。', strategy: '<b>Audit Solution:</b> Drives peer-to-peer engagement and tagging.' },
+            { type: 'image', src: 'https://images.unsplash.com/photo-1513151233558-d860c5398176?w=800', badge: '🌱 Eco', caption: '<b>hktvmall</b> 🌱 Choose consolidated green delivery slots to reduce carbon footprints together across Hong Kong.<br><br>選擇綠色合併送貨時段，與我們一同為香港減少碳足跡。', strategy: '<b>Audit Solution:</b> Aligns brand positioning with modern consumer values.' }
+        ],
+        audit: [
+            { type: 'banner', bg: '#ffebee', title: '⚠️ 提防假冒\nHKTVmall來電', sub: '假! 保單附表詐騙警告', caption: '<b>hktvmall</b> 【防騙警訊】近日有不法份子冒充HKTVmall職員進行詐騙電話，請切勿透露個人資料！ 🚨 #防騙 #hktvmall', strategy: '<b>Audit Issue:</b> High frequency of official announcements and scam alert banners mixed with promotions.' },
+            { type: 'banner', bg: '#e0f2f1', title: '大閘蟹 飆線價\n低至 $33.8 /隻', sub: '鰂魚線之特約', caption: '<b>hktvmall</b> 🦀 大閘蟹限時瘋搶！肉質鮮甜爆膏，全城最低價 $33.8/隻起！立即落單明天送到！ 🔥 #大閘蟹 #海鮮', strategy: '<b>Audit Issue:</b> Heavy promotional product highlight with green-and-white discount badge overlay.' },
+            { type: 'banner', bg: '#fffde7', title: '蝕本價！$99', sub: '樓下超市價 超過$125', caption: '<b>hktvmall</b> 💥 蝕本價大激減！精選零食及飲品組合只需 $99（原價 $125）！手快有手慢無！ 📉 #超值 #零食', strategy: '<b>Audit Issue:</b> Aggressive yellow price tag callouts causing visual clutter on feed.' },
+            { type: 'banner', bg: '#fbe9e7', title: '雪梨淮山排骨湯', sub: '滋潤養生 暖笠笠', caption: '<b>hktvmall</b> 🥣 天氣轉涼最適合飲呢款雪梨淮山排骨湯！所有新鮮食材HKTVmall一站式送到府上！ 🌿 #湯水 #養生', strategy: '<b>Audit Issue:</b> Occasional recipe post buried under heavy promotional flyers.' },
+            { type: 'banner', bg: '#ede7f6', title: 'GTA 6 專區', sub: '遊戲 $498 起', caption: '<b>hktvmall</b> 🎮 GTA 6 官方預售專區正式上架！主機、週邊、遊戲一站式買齊！立即搶購！ 🔥 #GTA6 #PS5', strategy: '<b>Audit Issue:</b> High-demand gaming pre-order banner with prominent pricing.' },
+            { type: 'banner', bg: '#e8f5e9', title: '玉泉新品\n特調汽水', sub: '果香 x 花香 新登場', caption: '<b>hktvmall</b> 🍹 玉泉全新口味特調汽水登場！清新果香搭配淡雅花香，消暑一流！新品特價試飲！ ✨ #玉泉 #新品', strategy: '<b>Audit Issue:</b> Standard brand promotional post for new beverage launches.' },
+            { type: 'banner', bg: '#fce4ec', title: '爆紅解壓神器', sub: 'Tangle / 扭扭樂', caption: '<b>hktvmall</b> 🌀 網上爆紅解壓神物到貨！返工返學焦慮必備，多款顏色任你揀！ 🎨 #解壓神器 #潮流', strategy: '<b>Audit Issue:</b> Trendy product highlight capitalizing on viral social media toys.' },
+            { type: 'banner', bg: '#fff3e0', title: '日韓零食大賞', sub: '第二件半價', caption: '<b>hktvmall</b> 🍘 日本直送人氣薯片及曲奇餅乾大賞！第二件半價優惠進行中！ 🏃‍♀️ #零食控 #日本直送', strategy: '<b>Audit Issue:</b> Repetitive discount formatting across grid posts.' },
+            { type: 'banner', bg: '#f3e5f5', title: '家電超級週', sub: '全場低至 3折', caption: '<b>hktvmall</b> 🔌 智能家電超級週！吸塵機、氣炸鍋、空氣清新機激減低至3折！ 🏠 #家電 #特賣', strategy: '<b>Audit Issue:</b> Heavy reliance on discount percentages rather than emotional storytelling.' }
+        ]
+    };
+
+    const reelsData = {
+        revamped: [
+            { src: 'https://images.unsplash.com/photo-1556910103-1c02745aae4d?w=800', caption: '<b>hktvmall</b> 🍳 15-Minute Creamy Mushroom Pasta Recipe using fresh ingredients delivered in 3 hours across Hong Kong! #15MinMeals #HKTVmall<br><br>15分鐘忌廉蘑菇意粉食譜，全港3小時新鮮直送食材！', strategy: '<b>Reel Strategy:</b> Educational recipe short driving high saves and recipe checklist clicks.' },
+            { src: 'https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?w=800', caption: '<b>hktvmall</b> 📦 Unboxing our weekly HKTVmall grocery haul with @foodie_hk! Fresh organic finds delivered to your doorstep.<br><br>與 @foodie_hk 一同開箱本週HKTVmall新鮮有機好物！', strategy: '<b>Reel Strategy:</b> User-Generated Content (UGC) unboxing spotlight to build organic community trust.' },
+            { src: 'https://images.unsplash.com/photo-1578916171728-46686eac8d58?w=800', caption: '<b>hktvmall</b> ⚡ Behind the scenes at our automated warehouse picking your daily essentials at lightning speed!<br><br>快閃幕後：全自動化物流倉極速為您配貨！', strategy: '<b>Reel Strategy:</b> Brand transparency and operational insight video to strengthen consumer confidence.' },
+            { src: 'https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?w=800', caption: '<b>hktvmall</b> ✨ K-Beauty Friday Glow Up routine featuring top serums available on next-day morning delivery.<br><br>韓系週末護膚程序，次日早晨準時送到。', strategy: '<b>Reel Strategy:</b> Lifestyle curation and product showcase in native vertical video format.' }
+        ],
+        audit: [
+            { src: 'https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?w=800', caption: '<b>hktvmall</b> 📉 SUPER SALE ADVERTISEMENT 50% OFF! BUY NOW! #sale #hktvmall<br><br>超級大減價廣告 50% OFF！立即搶購！', strategy: '<b>Audit Issue:</b> Monotonous discount promotion ad without narrative hook.' },
+            { src: 'https://images.unsplash.com/photo-1542838132-92c53300491e?w=800', caption: '<b>hktvmall</b> 🛒 Supermarket flash discount today only!! Hurry up!<br><br>超級市場快閃折扣今日限定！', strategy: '<b>Audit Issue:</b> Repetitive footage with static pricing overlays.' }
+        ]
+    };
+
+    function renderContent() {
+        const grid = document.getElementById('feedGrid');
+        grid.innerHTML = '';
+
+        if (currentTab === 'grid') {
+            const dataset = isRevamped ? feedData.revamped : feedData.audit;
+            dataset.forEach((post) => {
+                const item = document.createElement('div');
+                item.className = 'grid-item';
+                
+                if (post.type === 'banner') {
+                    item.innerHTML = `
+                        <div style="background:${post.bg}; width:100%; height:100%; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:8px; text-align:center; border:1px solid #ddd;">
+                            <span style="font-size:11px; font-weight:bold; color:#00b140; white-space:pre-line; line-height:1.2;">${post.title}</span>
+                            <span style="font-size:9px; color:#555; margin-top:4px;">${post.sub}</span>
+                        </div>
+                        <div class="badge">🏷️</div>
+                    `;
+                } else if (post.isCarousel) {
+                    item.innerHTML = `<img src="${post.images[0]}" alt="Carousel"><div class="badge">${post.badge}</div>`;
+                } else {
+                    item.innerHTML = `<img src="${post.src}" alt="Post"><div class="badge">📸</div>`;
+                }
+                
+                item.onclick = () => openPostModal(post);
+                grid.appendChild(item);
+            });
+        } else if (currentTab === 'reels') {
+            grid.style.gridTemplateColumns = 'repeat(2, 1fr)';
+            const activeReels = isRevamped ? reelsData.revamped : reelsData.audit;
+            activeReels.forEach((reel) => {
+                const item = document.createElement('div');
+                item.className = 'grid-item';
+                item.style.aspectRatio = '9/16';
+                item.innerHTML = `
+                    <img src="${reel.src}" alt="Reel">
+                    <div class="badge">🎬 Reel</div>
+                `;
+                item.onclick = () => openReelModal(reel);
+                grid.appendChild(item);
+            });
+            return;
+        } else {
+            grid.innerHTML = `<div style="grid-column: span 3; text-align:center; padding: 40px; color:#888; font-size:13px;">No tagged posts yet.</div>`;
+        }
+        grid.style.gridTemplateColumns = 'repeat(3, 1fr)';
+    }
+
+    function switchTab(tab) {
+        currentTab = tab;
+        document.getElementById('tabGrid').classList.remove('active');
+        document.getElementById('tabReels').classList.remove('active');
+        document.getElementById('tabTagged').classList.remove('active');
+        
+        if(tab === 'grid') document.getElementById('tabGrid').classList.add('active');
+        if(tab === 'reels') document.getElementById('tabReels').classList.add('active');
+        if(tab === 'tagged') document.getElementById('tabTagged').classList.add('active');
+        
+        renderContent();
+    }
+
+    function toggleMode() {
+        isRevamped = !isRevamped;
+        const modeText = document.getElementById('modeText');
+        const bioText = document.getElementById('bioText');
+        
+        if (isRevamped) {
+            modeText.innerText = "Revamped Strategy (After)";
+            bioText.innerHTML = "✨ Your Lifestyle & Daily Essentials Hub | 生活百貨一站式<br>📍 300+ O2O Pickup Points across HK | 全港300+自取點<br>📦 Next-Day Doorstep Delivery | 次日送貨上門";
+        } else {
+            modeText.innerText = "Current Audit (Before)";
+            bioText.innerHTML = "🛒 HKTVmall Official Shopping Channel<br>📦 Daily Discounts & Promotional Banners<br>💥 Shop our sales everyday!";
+        }
+        renderContent();
+    }
+
+    function openStory(type) {
+        const titleEl = document.getElementById('storyTitle');
+        const contentEl = document.getElementById('storyContentCard');
+        
+        if(type === 'flash') {
+            titleEl.innerText = "@hktvmall • ⚡ Today's Flash Deals / 限時狂搶";
+            contentEl.innerHTML = `
+                <h2 style="font-size: 20px; margin-bottom: 10px;">⚡ TODAY'S FLASH DEALS / 今日限時狂搶</h2>
+                <p style="font-size: 13px; margin-bottom: 15px;">Up to 70% OFF on Japanese Fresh Produce & Household Essentials!<br>日本直送新鮮水果及家居百貨激減高達7折！</p>
+                <div style="background: white; color: #00b140; padding: 10px; border-radius: 8px; font-weight: bold; font-size: 12px;">
+                    Promo Code / 優惠碼: HKTV70
+                </div>
+            `;
+        } else if(type === 'locations') {
+            titleEl.innerText = "@hktvmall • 📍 O2O Pickup Hubs / 自取點分佈";
+            contentEl.innerHTML = `
+                <h2 style="font-size: 20px; margin-bottom: 10px;">📍 300+ O2O STORES ACROSS HK</h2>
+                <p style="font-size: 13px; margin-bottom: 15px;">Convenient pickup locations in every MTR station and neighborhood across Hong Kong, Kowloon, and New Territories!<br>全港九新界各大港鐵站及屋苑設有300多個自取點，放工攞貨極方便！</p>
+            `;
+        } else if(type === 'haul') {
+            titleEl.innerText = "@hktvmall • 🛍️ #MyHKTVHaul Community";
+            contentEl.innerHTML = `
+                <h2 style="font-size: 20px; margin-bottom: 10px;">🛍️ #MyHKTVHaul GIVEAWAY</h2>
+                <p style="font-size: 13px; margin-bottom: 15px;">Share your weekly grocery haul on IG with #MyHKTVHaul to win $100 mall credits every Sunday!<br>於IG分享您的購物戰利品並加上 #MyHKTVHaul，每週日即贏 $100 現金券！</p>
+            `;
+        } else if(type === 'bts') {
+            titleEl.innerText = "@hktvmall • 📦 Logistics & Fulfillment";
+            contentEl.innerHTML = `
+                <h2 style="font-size: 20px; margin-bottom: 10px;">📦 SMART LOGISTICS NETWORK</h2>
+                <p style="font-size: 13px; margin-bottom: 15px;">Automated sorting and temperature-controlled delivery fleet ensuring freshness from warehouse to doorstep.<br>自動化分揀系統及溫控車隊，確保由倉庫到府上的品質新鮮。</p>
+            `;
+        }
+        
+        document.getElementById('storyModal').style.display = 'flex';
+    }
+    function closeStory() { document.getElementById('storyModal').style.display = 'none'; }
+
+    function openChatModal() { document.getElementById('chatModal').style.display = 'flex'; }
+    function closeChatModal() { document.getElementById('chatModal').style.display = 'none'; }
+    function selectChatOption(text) {
+        alert("Simulated Chat Action selected:\n" + text + "\n\n(In the live prototype, this routes to the HKTVmall CS bot or live agent)");
+        closeChatModal();
+    }
+
+    function openPostModal(post) {
+        const container = document.getElementById('modalContentContainer');
+        currentSlide = 0;
+
+        if (post.isCarousel) {
+            activeCarouselImages = post.images;
+            container.innerHTML = `
+                <img id="carouselImg" src="${activeCarouselImages[0]}" alt="Carousel Slide">
+                <button class="carousel-btn carousel-prev" onclick="changeSlide(-1, event)">‹</button>
+                <button class="carousel-btn carousel-next" onclick="changeSlide(1, event)">›</button>
+                <div class="carousel-dots" id="carouselDots">
+                    ${activeCarouselImages.map((_, i) => `<div class="dot ${i === 0 ? 'active' : ''}"></div>`).join('')}
+                </div>
+            `;
+        } else if (post.type === 'banner') {
+            container.innerHTML = `
+                <div style="background:${post.bg}; width:100%; height:100%; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:30px; text-align:center;">
+                    <h2 style="color:#00b140; white-space:pre-line; margin-bottom:10px;">${post.title}</h2>
+                    <p style="font-size:16px; color:#444;">${post.sub}</p>
+                </div>
+            `;
+        } else {
+            container.innerHTML = `<img src="${post.src}" alt="Post image">`;
+        }
+
+        document.getElementById('modalCaption').innerHTML = post.caption;
+        document.getElementById('modalStrategy').innerHTML = post.strategy;
+        document.getElementById('postModal').style.display = 'flex';
+    }
+
+    function changeSlide(direction, event) {
+        event.stopPropagation();
+        currentSlide += direction;
+        if (currentSlide < 0) currentSlide = activeCarouselImages.length - 1;
+        if (currentSlide >= activeCarouselImages.length) currentSlide = 0;
+
+        document.getElementById('carouselImg').src = activeCarouselImages[currentSlide];
+        
+        const dots = document.querySelectorAll('.dot');
+        dots.forEach((dot, index) => {
+            dot.classList.toggle('active', index === currentSlide);
+        });
+    }
+
+    function openReelModal(reel) {
+        document.getElementById('modalContentContainer').innerHTML = `<img src="${reel.src}" alt="Reel view" style="width:100%; height:100%; object-fit:cover;">`;
+        document.getElementById('modalCaption').innerHTML = reel.caption;
+        document.getElementById('modalStrategy').innerHTML = reel.strategy;
+        document.getElementById('postModal').style.display = 'flex';
+    }
+
+    function closePost() { 
+        document.getElementById('postModal').style.display = 'none'; 
+        document.getElementById('modalContentContainer').innerHTML = '';
+    }
+
+    renderContent();
+</script>
+
+</body>
+</html>index
